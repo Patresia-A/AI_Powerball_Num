@@ -1,14 +1,211 @@
-<html>
-  <head>
-    <title>CS 1030 Web Page Project</title>
-    <!-- Replace the content in the following line with your name. -->
-    <meta name="author" content="REPLACE WITH YOUR NAME">
-  </head>
-  <body>
-    <!-- Replace the lines in this body with your content. -->
-    <h1>CS 1030 - Web page Project</h1>
-    <img src="logo.png">
-    <p>Hello world!</p>
-    <p><a href="secondpage.html">More</a></p>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Random Powerball Number Generator</title>
+  <style>
+    :root {
+      --red: #d70000;
+      --green: #1aa71a;
+      --black: #000000;
+      --white: #ffffff;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #fafafa;
+      color: var(--black);
+    }
+
+    .container {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 40px 20px;
+    }
+
+    .content {
+      text-align: center;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 75pt;
+      line-height: 1.1;
+      margin: 0 0 20px 0;
+    }
+
+    .warning {
+      font-size: 50pt;
+      line-height: 1.15;
+      margin: 0 0 40px 0;
+    }
+
+    /* Buttons */
+    .btn {
+      font-size: 50pt;
+      line-height: 1;
+      padding: 24px 36px;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px; /* rectangle with slightly softened corners */
+      transition: transform 0.06s ease, opacity 0.2s ease;
+      user-select: none;
+      display: inline-block;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-red {
+      background: var(--red);
+      color: var(--white);
+    }
+
+    .btn-green {
+      background: var(--green);
+      color: var(--white);
+    }
+
+    /* Number balls */
+    .numbers {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin: 30px 0 30px 0;
+      flex-wrap: wrap;
+    }
+
+    .ball {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 50pt;
+      font-weight: 700;
+      background: var(--white);
+      color: var(--black);
+      border: 6px solid var(--black);
+      box-sizing: border-box;
+    }
+
+    .ball.powerball {
+      background: var(--red);
+      color: var(--white);
+      border: 6px solid var(--red);
+    }
+
+    /* Message */
+    .final-message {
+      font-size: 50pt;
+      line-height: 1.2;
+      margin-top: 30px;
+      display: inline-block;
+    }
+
+    /* Layout spacing helpers */
+    .spacer-lg { height: 30px; }
+    .spacer-xl { height: 40px; }
+
+    /* Make big text still fit on smaller screens */
+    @media (max-width: 900px) {
+      h1 { font-size: 48pt; }
+      .warning { font-size: 36pt; }
+      .btn { font-size: 36pt; padding: 18px 28px; }
+      .ball { width: 100px; height: 100px; font-size: 36pt; }
+      .final-message { font-size: 36pt; }
+    }
+
+    @media (max-width: 520px) {
+      h1 { font-size: 36pt; }
+      .warning { font-size: 28pt; }
+      .btn { font-size: 28pt; padding: 16px 24px; }
+      .ball { width: 88px; height: 88px; font-size: 28pt; }
+      .final-message { font-size: 28pt; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="content" id="app">
+      <!-- Header -->
+      <h1>Random Powerball Number Generator</h1>
+
+      <!-- Warning text -->
+      <p class="warning">Play at your own risk. We cannot guarantee any numbers will be accurate.</p>
+
+      <!-- Initial "Generate" button -->
+      <button id="generateBtn" class="btn btn-red" aria-label="Generate my numbers!">
+        Generate my numbers!
+      </button>
+
+      <!-- Dynamic area where numbers / green button / final message will appear -->
+      <div id="dynamicArea"></div>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const generateBtn = document.getElementById('generateBtn');
+      const dynamicArea = document.getElementById('dynamicArea');
+
+      // Fixed set of numbers to display after clicking the red button
+      const numbers = ["05", "24", "28", "58", "14"]; // first 4 regular, 5th is powerball
+
+      function showNumbers() {
+        // Build numbers row
+        const numbersRow = document.createElement('div');
+        numbersRow.className = 'numbers';
+        numbers.forEach((num, idx) => {
+          const span = document.createElement('span');
+          span.className = 'ball' + (idx === 4 ? ' powerball' : '');
+          span.textContent = num;
+          numbersRow.appendChild(span);
+        });
+
+        // Build green button
+        const greenBtn = document.createElement('button');
+        greenBtn.className = 'btn btn-green';
+        greenBtn.type = 'button';
+        greenBtn.textContent = 'Bad vibes. I want new numbers!';
+        greenBtn.setAttribute('aria-label', 'Bad vibes. I want new numbers!');
+        greenBtn.addEventListener('click', showFinalMessage);
+
+        // Clear and insert new UI
+        dynamicArea.innerHTML = '';
+        dynamicArea.appendChild(numbersRow);
+
+        const spacer = document.createElement('div');
+        spacer.className = 'spacer-lg';
+        dynamicArea.appendChild(spacer);
+
+        dynamicArea.appendChild(greenBtn);
+      }
+
+      function showFinalMessage() {
+        dynamicArea.innerHTML = '';
+
+        const msg = document.createElement('div');
+        msg.className = 'final-message';
+        msg.textContent = "Well, that’s too damn bad! You get what you get, and you don't throw a fit! ";
+
+        const clown = document.createElement('span');
+        clown.setAttribute('role', 'img');
+        clown.setAttribute('aria-label', 'clown face');
+        clown.textContent = '🤡';
+
+        msg.appendChild(clown);
+        dynamicArea.appendChild(msg);
+      }
+
+      generateBtn.addEventListener('click', showNumbers);
+    })();
+  </script>
+</body>
 </html>
+
